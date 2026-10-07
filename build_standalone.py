@@ -95,21 +95,55 @@ def main() -> str:
       return Promise.resolve(new Response(JSON.stringify({gender:g, rows:D[g]}),
                                           {headers:{'Content-Type':'application/json'}}));
     }
+    /* client-side machine translation + politeness cleanup, so the static
+       page still answers sentences the phrasebook does not cover */
+    async function onlineMT(text, g){
+      try{
+        const r = await fetch('https://api.mymemory.translated.net/get?q='
+          + encodeURIComponent(text.slice(0,450)) + '&langpair=en|my');
+        const d = await r.json();
+        let t = (((d||{}).responseData)||{}).translatedText || '';
+        t = String(t).trim();
+        if(!t || /MYMEMORY|INVALID|ERROR|QUERY/i.test(t)) return null;
+        t = t.replace(/\s+([။!?၊;:])/g,'$1').replace(/\s{2,}/g,' ')
+             .replace(/​/g,'').trim();
+        // reattach detached postpositions exactly like the server engine
+        // reattach detached postpositions exactly like the server engine
+        // (regex LITERAL -- string-built regexes keep losing a backslash
+        //  through the Python/JS escaping layers)
+        const RX=/([က-႟])\s+(၏|အတွက်|ကြောင့်|မှာ|၌|တွင်|၍|၎င်း|နှင့်|ကို|သို့|လောက်|ခန့်|ရဲ့)\s*(?=[က-႟])/g;
+        let prev=null;
+        while(prev!==t){ prev=t; t=t.replace(RX,'$1$2'); }
+        const me  = (g==='female') ? 'ကျွန်မ' : 'ကျွန်တော်';
+        t = t.replace(/ကျွန်ုပ်တို့/g, me+'တို့').replace(/ကျွန်ုပ်/g, me)
+             .replace(/ကျနော်/g, me);
+        const fin = (g==='female') ? 'ရှင်' : 'ခင်ဗျာ';
+        let body = t.replace(/[။!?]+\s*$/,'');
+        if(body.indexOf('ပါ')<0 && body.indexOf('ကဲ့')<0) body += ' ပါ';
+        if(!body.endsWith(fin)) body += ' ' + fin;
+        return {english:text, burmese: body+'။', literal:t, source:'mt+polite',
+                hint:'အင်တာနက်ဘာသာပြန် + ယဉ်ကျေးမှု ပြင်ဆင်ချက်', roman:'',
+                changed:[], answers:[]};
+      }catch(e){ return null; }
+    }
+
     if(u.startsWith('/api/translate')){
       const g = /female/.test(u) ? 'female' : 'male';
       state.gender = g;
       let text='';
       try{ text = JSON.parse((opts&&opts.body)||'{}').text || ''; }catch(e){}
       const hit = window.__offlineAnswer(text);
-      const body = hit || {
+      if(hit){
+        return Promise.resolve(new Response(JSON.stringify(hit),
+                                            {headers:{'Content-Type':'application/json'}}));
+      }
+      return onlineMT(text, g).then(body => new Response(JSON.stringify(body || {
         english:text, source:'offline',
         burmese:(g==='female'
           ? 'တစ်ဆိတ်လောက် ထပ်ပြောပေးပါ ရှင်။ နားမလည်သေးပါ။'
           : 'တစ်ဆိတ်လောက် ထပ်ပြောပေးပါ ခင်ဗျာ။ နားမလည်သေးပါ။'),
-        hint:'အင်တာနက်မရှိ၍ အခြေခံအဖြေသာ ပေးနိုင်သည်', roman:'', literal:'',
-        answers:[]};
-      return Promise.resolve(new Response(JSON.stringify(body),
-                                          {headers:{'Content-Type':'application/json'}}));
+        hint:'ဘာသာပြန်မရပါ - အခြေခံအဖြေသာ ပေးနိုင်သည်', roman:'', literal:'',
+        answers:[]}), {headers:{'Content-Type':'application/json'}}));
     }
     if(u.startsWith('/api/polish')){
       let text='';
@@ -128,7 +162,12 @@ def main() -> str:
   // the recording button is useless offline -- point it at the phrasebook
   document.addEventListener('DOMContentLoaded', ()=>{
     const hint = document.getElementById('michint');
-    if(hint) hint.textContent = 'အော့ဖ်လိုင်းဗားရှင်း - အသံသွင်းခြင်း မရပါ။ စာရိုက်ခြင်း/စကားလုံးစာအုပ်ကို သုံးပါ';
+    if(hint) hint.textContent = '🎙 “တိုက်ရိုက်” ခလုတ်ကို နှိပ်ပြီး ဖုန်းကို စပီကာဖွင့်ကာ နားထောင်ပါ (Chrome + အင်တာနက် လိုသည်)';
+    const mic = document.getElementById('mic');
+    if(mic) mic.addEventListener('click', (e)=>{
+      e.stopImmediatePropagation(); e.preventDefault();
+      toast('🎙 တိုက်ရိုက် ခလုတ်ကို သုံးပါ');
+    }, true);
   });
 })();
 </script>
