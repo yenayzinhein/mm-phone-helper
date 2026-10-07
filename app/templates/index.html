@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12100c">
+<title>ဖုန်းပြော အကူ · English → ယဉ်ကျေးသော မြန်မာစာ</title>
+<style>
+@font-face{font-family:'Padauk Web';src:url('/static/fonts/padauk-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+1000-109F,U+AA60-AA7F,U+200B-200D,U+25CC;}
+@font-face{font-family:'Padauk Web';src:url('/static/fonts/padauk-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap;unicode-range:U+1000-109F,U+AA60-AA7F,U+200B-200D,U+25CC;}
+:root{
+  --bg:#14110c; --panel:#1d1913; --panel2:#262018; --line:#3a3125;
+  --gold:#e0b24a; --gold-dim:#8d7133; --ink:#f4ead6; --muted:#a3988099;
+  --muted2:#b6a98f; --ok:#7dc98a; --warn:#e08f4a; --bad:#d9715f;
+  --r:16px; --mm:'Padauk Web','Padauk','Myanmar Text','Noto Sans Myanmar','Myanmar3','Pyidaungsu',sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 50% -200px,#2a2115 0%,transparent 70%),
+    var(--bg);
+  color:var(--ink); font-family:var(--mm); font-size:17px; line-height:1.75;
+  min-height:100vh; padding-bottom:90px;
+}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px}
+header{display:flex;align-items:center;gap:12px;padding:10px 2px 16px}
+.logo{width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:linear-gradient(140deg,var(--gold),#a97f26);
+  display:grid;place-items:center;box-shadow:0 4px 18px #0008}
+h1{font-size:20px;margin:0;line-height:1.3;font-weight:700}
+.sub{font-size:13px;color:var(--muted2);line-height:1.5}
+
+/* gender switch */
+.gender{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px;gap:4px;margin:0 0 18px}
+.gender button{flex:1;border:0;background:transparent;color:var(--muted2);font-family:var(--mm);
+  font-size:15px;padding:9px 6px;border-radius:999px;cursor:pointer;transition:.18s}
+.gender button[aria-pressed=true]{background:linear-gradient(140deg,#e0b24a,#c1922f);color:#20190c;font-weight:700}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--panel);padding:5px;border-radius:14px;border:1px solid var(--line)}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted2);font-family:var(--mm);font-size:15px;
+  padding:10px 4px;border-radius:10px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--panel2);color:var(--gold);font-weight:700}
+.pane[hidden]{display:none}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 10px;color:var(--gold);font-weight:700;letter-spacing:.02em}
+
+/* record button */
+.rec{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0 4px}
+.mic{width:104px;height:104px;border-radius:50%;border:0;cursor:pointer;position:relative;
+  background:radial-gradient(circle at 32% 28%,#f3cf78,#e0b24a 42%,#a97f26);
+  box-shadow:0 8px 26px #0009,inset 0 -4px 12px #00000040;color:#20190c;
+  display:grid;place-items:center;transition:transform .12s}
+.mic:active{transform:scale(.95)}
+.mic.on{background:radial-gradient(circle at 32% 28%,#f0a08d,#d9715f 45%,#96372a);color:#2a0f09}
+.mic.on::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:2px solid #d9715f80;animation:pulse 1.5s infinite}
+@keyframes pulse{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+.hint{font-size:13px;color:var(--muted2);text-align:center}
+.timer{font-variant-numeric:tabular-nums;font-size:15px;color:var(--gold);min-height:24px}
+
+textarea,input[type=text]{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+  border-radius:12px;padding:12px;font-family:var(--mm);font-size:17px;line-height:1.7;resize:vertical}
+textarea{min-height:88px}
+textarea:focus,input:focus{outline:none;border-color:var(--gold-dim)}
+
+.btn{border:0;border-radius:12px;padding:12px 16px;font-family:var(--mm);font-size:16px;cursor:pointer;
+  background:linear-gradient(140deg,#e0b24a,#c1922f);color:#20190c;font-weight:700;width:100%}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-weight:400}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;margin-top:10px}
+.row .btn{width:auto;flex:1}
+
+/* results */
+.result{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:6px}
+.result .rhead{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:9px 13px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted2)}
+.en{padding:12px 14px;color:var(--muted2);font-size:15px;line-height:1.7;font-family:ui-sans-serif,system-ui,sans-serif}
+.mm{padding:14px;font-size:23px;line-height:2.05;font-weight:700;color:#fff;
+  background:linear-gradient(180deg,#22301d00,#1f2a1c55);border-top:1px dashed var(--line)}
+.mm.bigmouth{font-size:27px}
+.roman{padding:0 14px 12px;color:var(--gold-dim);font-size:13px;font-family:ui-monospace,monospace}
+.acts{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:var(--panel)}
+.acts button{flex:1;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;
+  padding:9px 6px;font-family:var(--mm);font-size:14px;cursor:pointer}
+.acts button:active{background:#33291c}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#0006;color:var(--muted2);white-space:nowrap}
+.note{font-size:13px;color:var(--muted2);padding:10px 14px;border-top:1px solid var(--line)}
+.literal{font-size:13px;color:var(--muted2);padding:8px 14px;border-top:1px dashed var(--line)}
+
+/* quick chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:999px;
+  padding:9px 13px;font-family:var(--mm);font-size:14px;cursor:pointer}
+.chips button:active{border-color:var(--gold-dim)}
+
+/* phrasebook */
+.search{margin-bottom:12px}
+.pb{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:10px;background:var(--panel)}
+.pb .en{padding:10px 13px;font-size:14px;border:0}
+.pb .mm{font-size:20px;line-height:1.95;padding:10px 13px}
+.pb .roman{padding:0 13px 10px}
+
+.spin{display:inline-block;width:15px;height:15px;border:2px solid var(--gold-dim);border-top-color:var(--gold);
+  border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.status{font-size:13px;color:var(--muted2);text-align:center;min-height:22px;margin-top:8px}
+.status.err{color:var(--bad)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#e0b24a;color:#20190c;
+  padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:9}
+.toast.on{opacity:1}
+footer{font-size:12px;color:#6f6455;text-align:center;padding:18px 10px 0;line-height:1.7}
+.sizebtn{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-bottom:6px}
+.sizebtn button{background:var(--panel2);border:1px solid var(--line);color:var(--muted2);border-radius:8px;
+  padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--mm)}
+details summary{cursor:pointer;color:var(--gold);font-size:14px;padding:4px 0}
+details .card{margin-top:8px}
+@media(max-width:420px){ body{font-size:16px} .mm{font-size:21px} .mm.bigmouth{font-size:24px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20190c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/>
+    </svg>
+  </div>
+  <div>
+    <h1>ဖုန်းပြော အကူ</h1>
+    <div class="sub">အင်္ဂလိပ်စကားသံ → မြန်မာလို ယဉ်ကျေးစွာ ပြန်ဖြေရမည့်စာ</div>
+  </div>
+</header>
+
+<div class="gender" role="group" aria-label="ကျား/မ ရွေးချယ်ရန်">
+  <button id="g-male" aria-pressed="true">ကျွန်တော် (ကျား)</button>
+  <button id="g-female" aria-pressed="false">ကျွန်မ (မ)</button>
+</div>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="t-listen" aria-selected="true">🎧 အသံနားထောင်</button>
+  <button role="tab" id="t-type" aria-selected="false">⌨️ စာရိုက်</button>
+  <button role="tab" id="t-book" aria-selected="false">📖 စကားလုံး</button>
+</div>
+
+<!-- ================= LISTEN ================= -->
+<section class="pane" id="p-listen">
+  <div class="card">
+    <h2>၁။ ဖုန်းထဲက အင်္ဂလိပ်စကားကို မှတ်တင်ပါ</h2>
+    <div class="rec">
+      <button class="mic" id="mic" aria-label="အသံသွင်းရန်">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/>
+        </svg>
+      </button>
+      <div class="timer" id="timer"></div>
+      <div class="hint" id="michint">ခလုတ်ကို နှိပ်ပြီး ဖုန်းထဲက အသံကို မိုက်ခရိုဖုန်းနား ကပ်ထားပါ</div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="upload">📁 အသံဖိုင် တင်ရန်</button>
+      <button class="btn ghost" id="live">⚡ တိုက်ရိုက်</button>
+    </div>
+    <input type="file" id="file" accept="audio/*" hidden>
+    <div class="status" id="status"></div>
+  </div>
+  <div id="out-listen"></div>
+</section>
+
+<!-- ================= TYPE ================= -->
+<section class="pane" id="p-type" hidden>
+  <div class="card">
+    <h2>ကြားလိုက်ရတဲ့ အင်္ဂလိပ်စာကို ဒီမှာ ရိုက်ထည့်ပါ</h2>
+    <textarea id="intext" placeholder="e.g. Sorry, I can't hear you clearly."></textarea>
+    <div class="row"><button class="btn" id="go">ယဉ်ကျေးတဲ့ မြန်မာစာ ဖော်ပြရန်</button></div>
+    <div class="status" id="status2"></div>
+  </div>
+  <div class="card">
+    <h2>မြန်မာလို ရေးပြီးသားစာကို ယဉ်ကျေးအောင် ပြောင်းရန်</h2>
+    <textarea id="mmtext" placeholder="ဥပမာ - ငါ မင်းကို ပြန်ခေါ်မယ်"></textarea>
+    <div class="row"><button class="btn ghost" id="gopolish">ယဉ်ကျေးသော ပုံစံသို့ ပြောင်းရန်</button></div>
+    <div class="status" id="status3"></div>
+  </div>
+  <div id="out-type"></div>
+</section>
+
+<!-- ================= PHRASEBOOK ================= -->
+<section class="pane" id="p-book" hidden>
+  <div class="card">
+    <h2>ဖုန်းပြောရာတွင် အသုံးဝင်သော ယဉ်ကျေးသည့် စကားများ</h2>
+    <input type="text" class="search" id="pbsearch" placeholder="ရှာဖွေရန် (hello / sorry / …)">
+    <div class="chips" id="quickchips"></div>
+  </div>
+  <div id="pblist"></div>
+</section>
+
+<details>
+  <summary>ℹ️ အသုံးပြုနည်းနှင့် သတိပေးချက်</summary>
+  <div class="card">
+    <p style="margin-top:0">
+      <b>၁.</b> ဖုန်းပြောနေစဉ် ဒီစာမျက်နှာကို ဖွင့်ထားပါ။<br>
+      <b>၂.</b> ကျား/မ ကို အပေါ်တွင် ရွေးပါ (ကျွန်တော် / ကျွန်မ)။<br>
+      <b>၃.</b> မိုက်ခရိုဖုန်းခလုတ်ကို နှိပ်ပြီး ဖုန်းကို စပီကာဖွင့်ကာ မိုက်နားကပ်ပါ။<br>
+      <b>၄.</b> ပြီးလျှင် ခလုတ်ကို ထပ်နှိပ်ပါ — အင်္ဂလိပ်စာနှင့် ပြန်ဖြေရမည့် မြန်မာစာ ပေါ်လာပါမည်။<br>
+      <b>၅.</b> “ကူးယူ” ခလုတ်ကို နှိပ်ပြီး ဖတ်ပြပါ။
+    </p>
+    <p><b>သတိပေးချက်</b> — အသံသွင်းခြင်းသည် ဤကွန်ပျူတာ/ဖုန်းထဲတွင်သာ ပြုလုပ်ပြီး မည်သည့်နေရာသို့မျှ မပို့ပါ။ သို့သော် ဘာသာပြန်အတွက် အင်တာနက် လိုအပ်နိုင်ပါသည်။ ဖုန်းခေါ်ဆိုသူ၏ ခွင့်ပြုချက်မပါဘဲ အသံမှတ်တင်ခြင်းကို ရှောင်ကြဉ်ပါ။</p>
+  </div>
+</details>
+
+<footer>
+  မြန်မာစာ ယဉ်ကျေးမှု စနစ် — ကျွန်တော်/ကျွန်မ၊ …ပါ၊ ခင်ဗျာ/ရှင်<br>
+  Offline phrasebook + Whisper (tiny.en)
+</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ------------------------------------------------------------------ state */
+const S = { gender:'male', tab:'listen', big:false, rec:null, chunks:[], t0:0, tick:null,
+            live:null, liveText:'' };
+const $ = s => document.querySelector(s);
+const mmFont = "'Padauk Web','Padauk','Myanmar Text','Noto Sans Myanmar',sans-serif";
+
+/* ------------------------------------------------------------------- tabs */
+const tabs = {listen:['#t-listen','#p-listen'], type:['#t-type','#p-type'], book:['#t-book','#p-book']};
+function showTab(name){
+  S.tab = name;
+  for (const [k,[btn,pane]] of Object.entries(tabs)){
+    $(btn).setAttribute('aria-selected', k===name);
+    $(pane).hidden = (k!==name);
+  }
+}
+$('#t-listen').onclick = ()=>showTab('listen');
+$('#t-type').onclick   = ()=>showTab('type');
+$('#t-book').onclick   = ()=>showTab('book');
+
+/* ----------------------------------------------------------------- gender */
+function setGender(g){
+  S.gender = g;
+  $('#g-male').setAttribute('aria-pressed', g==='male');
+  $('#g-female').setAttribute('aria-pressed', g==='female');
+  loadPhrasebook();
+  localStorage.setItem('mmg', g);
+}
+$('#g-male').onclick   = ()=>setGender('male');
+$('#g-female').onclick = ()=>setGender('female');
+setGender(localStorage.getItem('mmg') || 'male');
+
+/* Clipboard API is unavailable inside a sandboxed iframe (no
+   allow-same-origin), so fall back to execCommand before giving up. */
+function copyText(txt){
+  const done = ()=>toast('ကူးယူပြီး');
+  const fail = ()=>toast('မကူးယူနိုင်ပါ — စာကို လက်ဖြင့် ရွေးပါ');
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>legacyCopy(txt)?done():fail());
+  } else {
+    legacyCopy(txt) ? done() : fail();
+  }
+}
+function legacyCopy(txt){
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=txt; ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;top:0;left:-9999px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    const ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+
+/* ------------------------------------------------------------------ toast */
+let toastT;
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),1600);
+}
+function setStatus(sel, msg, err){
+  const el=$(sel); el.className='status'+(err?' err':''); el.innerHTML=msg||'';
+}
+
+/* ---------------------------------------------------------------- results */
+function escapeHTML(s){ return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function resultCard(data, opts){
+  opts = opts || {};
+  const src = {phrasebook:'စကားလုံးစာအုပ်', 'mt+polite':'ဘာသာပြန် + ယဉ်ကျေးမှု',
+               glossary:'အဓိပ္ပာယ်အကြမ်း', fallback:'အခြေခံအဖြေ'}[data.source] || data.source;
+  const div = document.createElement('div');
+  div.className='result';
+  div.innerHTML = `
+    <div class="rhead"><span>ပြန်ဖြေရမည့် စာ</span><span class="badge">${escapeHTML(src)}</span></div>
+    ${data.english?`<div class="en">“${escapeHTML(data.english)}”</div>`:''}
+    <div class="mm ${S.big?'bigmouth':''}" id="mm-out">${escapeHTML(data.burmese)}</div>
+    ${data.roman?`<div class="roman">${escapeHTML(data.roman)}</div>`:''}
+    ${data.literal?`<div class="literal">စက်ဘာသာပြန် (မူရင်း): ${escapeHTML(data.literal)}</div>`:''}
+    ${data.hint?`<div class="note">💡 ${escapeHTML(data.hint)}</div>`:''}
+    <div class="acts">
+      <button data-a="copy">📋 ကူးယူ</button>
+      <button data-a="big">${S.big?'↕ ပုံမှန်':'🔎 စာကြီး'}</button>
+      <button data-a="speak">🔊 အသံထွက်</button>
+    </div>`;
+  div.querySelector('[data-a=copy]').onclick = ()=>{
+    copyText(data.burmese);
+  };
+  div.querySelector('[data-a=big]').onclick = ()=>{
+    S.big=!S.big;
+    document.querySelectorAll('.mm').forEach(m=>m.classList.toggle('bigmouth',S.big));
+    toast(S.big?'စာကြီးကြီး':'ပုံမှန်အရွယ်');
+  };
+  div.querySelector('[data-a=speak]').onclick = ()=>{
+    const u = new SpeechSynthesisUtterance(data.burmese); u.lang='my-MM'; u.rate=0.85;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  };
+  return div;
+}
+function putAnswer(containerSel, data){
+  const c=$(containerSel); c.innerHTML='';
+  const list = (data.answers && data.answers.length>1) ? data.answers : [data];
+  list.forEach((d,i)=>{
+    const card = resultCard(d);
+    if(i>0){
+      const tag=document.createElement('div');
+      tag.className='rhead';
+      tag.style.background='transparent';
+      tag.innerHTML = `<span style="color:var(--gold)">အဖြေ ${i+1} — “${escapeHTML((d.english||'').slice(0,70))}”</span>`;
+      card.insertBefore(tag, card.firstChild);
+    }
+    c.appendChild(card);
+    c.appendChild(document.createElement('div')).style.height='10px';
+  });
+  if(data.untranslated && data.untranslated.length){
+    const w=document.createElement('div'); w.className='note';
+    w.innerHTML = '⚠️ ဘာသာမပြန်နိုင်သော အပိုင်း: '+data.untranslated.map(escapeHTML).join(' · ');
+    c.appendChild(w);
+  }
+  const el=c.querySelector('.mm');
+  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* --------------------------------------------------------------- requests */
+async function postJSON(url, body){
+  const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'},
+                              body:JSON.stringify(body)});
+  if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.statusText);
+  return r.json();
+}
+
+/* ------------------------------------------------------------ transcription */
+async function sendAudio(blob, label){
+  setStatus('#status', '<span class="spin"></span>အသံကို ခွဲခြမ်းစိတ်ဖြာနေသည်…');
+  const fd = new FormData();
+  fd.append('audio', blob, label || 'rec.webm');
+  const r = await fetch('/api/transcribe?gender='+S.gender, {method:'POST', body:fd});
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.error || 'မအောင်မြင်ပါ');
+  setStatus('#status', data.transcript ? `✅ ${data.duration}s · ${data.model}` : '');
+  if(!data.transcript){
+    setStatus('#status','အသံမကြားရပါ — ပိုကျယ်ကျယ်/နီးနီး ထပ်ကြိုးစားပါ', true);
+    return;
+  }
+  if(!data.answer) return;
+  putAnswer('#out-listen', data.answer);
+  $('#out-listen').insertAdjacentHTML('afterbegin',
+    `<div class="result" style="margin-bottom:10px"><div class="rhead"><span>ကြားလိုက်ရသည့် အင်္ဂလိပ်စာ</span></div>
+     <div class="en" style="color:var(--ink)">${escapeHTML(data.transcript)}</div></div>`);
+}
+
+/* -------------------------------------------------------------- recording */
+async function toggleRecord(){
+  if(S.rec && S.rec.state==='recording'){ stopRecord(); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}});
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : '';
+    S.rec = new MediaRecorder(stream, mime?{mimeType:mime}:undefined);
+    S.chunks=[];
+    S.rec.ondataavailable = e => e.data.size && S.chunks.push(e.data);
+    S.rec.onstop = async ()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const blob = new Blob(S.chunks, {type: S.rec.mimeType || 'audio/webm'});
+      clearInterval(S.tick); $('#timer').textContent='';
+      $('#mic').classList.remove('on'); $('#michint').textContent='ခလုတ်ကို နှိပ်ပြီး ဖုန်းထဲက အသံကို မိုက်ခရိုဖုန်းနား ကပ်ထားပါ';
+      if(blob.size < 1200){ setStatus('#status','အသံတိုလွန်းသည် — ထပ်ကြိုးစားပါ',true); return; }
+      try{ await sendAudio(blob,'rec.webm'); }catch(e){ setStatus('#status', e.message, true); }
+    };
+    S.rec.start();
+    S.t0=Date.now();
+    $('#mic').classList.add('on');
+    $('#michint').textContent='နားထောင်နေသည်… ပြီးလျှင် ခလုတ်ကို ထပ်နှိပ်ပါ';
+    setStatus('#status','');
+    S.tick=setInterval(()=>{
+      const s=Math.floor((Date.now()-S.t0)/1000);
+      $('#timer').textContent = String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    },250);
+  }catch(e){
+    setStatus('#status','မိုက်ခရိုဖုန်း ခွင့်ပြုချက် မရပါ — ဖိုင်တင်ခြင်း သို့မဟုတ် စာရိုက်ခြင်းကို သုံးပါ', true);
+  }
+}
+function stopRecord(){ if(S.rec && S.rec.state==='recording') S.rec.stop(); }
+$('#mic').onclick = toggleRecord;
+
+/* ------------------------------------------------------------------ upload */
+$('#upload').onclick = ()=>$('#file').click();
+$('#file').onchange = async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  setStatus('#status','<span class="spin"></span>ဖိုင်ကို တင်နေသည်…');
+  try{ await sendAudio(f, f.name); }catch(err){ setStatus('#status', err.message, true); }
+  e.target.value='';
+};
+
+/* ------------------------------------------------------------- live (WSPR) */
+$('#live').onclick = ()=>{
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast('ဤဘရောက်ဇာက တိုက်ရိုက်နားထောင်မှု မပံ့ပိုးပါ'); return; }
+  if(S.live){ S.live.stop(); return; }
+  S.live = new SR(); S.live.lang='en-US'; S.live.continuous=true; S.live.interimResults=true;
+  S.liveText='';
+  $('#live').textContent='⏹ ရပ်ရန်';
+  setStatus('#status','တိုက်ရိုက် နားထောင်နေသည်…');
+  S.live.onresult = ev=>{
+    let final='', interim='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const t=ev.results[i][0].transcript;
+      if(ev.results[i].isFinal) final+=t+' '; else interim+=t;
+    }
+    S.liveText = (S.liveText+final).trim();
+    setStatus('#status','🎙 '+escapeHTML(S.liveText||interim));
+  };
+  S.live.onerror = ev=>{ setStatus('#status','တိုက်ရိုက်နားထောင်မှု အမှား: '+ev.error, true); };
+  S.live.onend = ()=>{
+    $('#live').textContent='⚡ တိုက်ရိုက်';
+    const text=S.liveText.trim();
+    if(text) translateNow(text,'#status','#out-listen');
+    else setStatus('#status','');
+    S.live=null;
+  };
+  S.live.start();
+};
+
+/* -------------------------------------------------------------------- type */
+async function translateNow(text, statusSel, outSel){
+  setStatus(statusSel,'<span class="spin"></span>ယဉ်ကျေးသော မြန်မာစာ ဖန်တီးနေသည်…');
+  try{
+    const d = await postJSON('/api/translate?gender='+S.gender, {text, online:1});
+    setStatus(statusSel,'');
+    putAnswer(outSel, d);
+  }catch(e){ setStatus(statusSel, e.message, true); }
+}
+$('#go').onclick = ()=>{
+  const t=$('#intext').value.trim(); if(!t) return toast('အင်္ဂလိပ်စာ ရိုက်ထည့်ပါ');
+  translateNow(t,'#status2','#out-type');
+};
+$('#gopolish').onclick = async ()=>{
+  const t=$('#mmtext').value.trim(); if(!t) return toast('မြန်မာစာ ရိုက်ထည့်ပါ');
+  setStatus('#status3','<span class="spin"></span>ပြောင်းလဲနေသည်…');
+  try{
+    const d = await postJSON('/api/polish?gender='+S.gender, {text:t});
+    setStatus('#status3','');
+    putAnswer('#out-type', {burmese:d.text, english:t, source:'polish',
+      hint:(d.changed&&d.changed.length)? 'ပြောင်းလဲချက်: '+d.changed.join(' · ') : d.note,
+      literal:'', roman:''});
+  }catch(e){ setStatus('#status3', e.message, true); }
+};
+$('#intext').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#go').click();} });
+
+/* -------------------------------------------------------------- phrasebook */
+let PB=[];
+async function loadPhrasebook(){
+  try{
+    const r=await fetch('/api/phrasebook?gender='+S.gender); PB=(await r.json()).rows||[];
+  }catch(e){ PB=[]; }
+  renderPB('');
+  const qc=$('#quickchips'); qc.innerHTML='';
+  ['Hello',"I can't hear you","I don't understand","Please say that again",'Do you speak Burmese?','Please hold','Thank you','Sorry','Goodbye']
+    .forEach(k=>{
+      const b=document.createElement('button'); b.textContent=k;
+      b.onclick=()=>{ $('#intext').value=k; showTab('type'); $('#go').click(); };
+      qc.appendChild(b);
+    });
+}
+function renderPB(q){
+  q=(q||'').toLowerCase().trim();
+  const rows = PB.filter(r => !q || r.english.toLowerCase().includes(q) ||
+                               (r.burmese||'').includes(q) || (r.roman||'').toLowerCase().includes(q));
+  const box=$('#pblist'); box.innerHTML='';
+  rows.forEach(r=>{
+    const d=document.createElement('div'); d.className='pb';
+    d.innerHTML=`<div class="en">${escapeHTML(r.english)}</div>
+      <div class="mm ${S.big?'bigmouth':''}">${escapeHTML(r.burmese)}</div>
+      ${r.roman?`<div class="roman">${escapeHTML(r.roman)}</div>`:''}
+      ${r.hint?`<div class="note">💡 ${escapeHTML(r.hint)}</div>`:''}
+      <div class="acts"><button>📋 ကူးယူ</button></div>`;
+    d.querySelector('button').onclick=()=>{
+      copyText(r.burmese);
+    };
+    box.appendChild(d);
+  });
+  if(!rows.length) box.innerHTML='<div class="card" style="color:var(--muted2)">မတွေ့ပါ</div>';
+}
+$('#pbsearch').oninput = e=>renderPB(e.target.value);
+
+/* ------------------------------------------------------------------- init */
+loadPhrasebook();
+</script>
+</body>
+</html>

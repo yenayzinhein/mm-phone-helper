@@ -1,0 +1,24 @@
+# Render Blueprint -- FREE plan
+# https://render.com/docs/blueprint-spec
+#
+# Push the repo to GitHub, then in Render: New + -> Blueprint -> pick the repo.
+#
+# IMPORTANT: run `python3 fetch_model.py` and COMMIT models/tiny.en BEFORE
+# pushing.  The Free plan cannot attach a persistent disk and its filesystem
+# is wiped on every spin-down, so a model downloaded at runtime would be
+# re-downloaded (75 MB) on every cold start.  See DEPLOY.md.
+services:
+  - type: web
+    name: mm-phone-helper
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 --threads 4 -b 0.0.0.0:$PORT --timeout 180 wsgi:app
+    healthCheckPath: /api/ready
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: MAX_AUDIO_MB
+        value: "12"      # Free instance has 512 MB RAM
+      - key: PRELOAD_MODEL
+        value: "1"

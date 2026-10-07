@@ -1,0 +1,29 @@
+# Render Blueprint -- STARTER plan ($7/month)
+# Use this if you want fast cold starts and a small repo: the model lives on a
+# persistent disk instead of being committed to git.
+#
+#   Render: New + -> Blueprint -> pick the repo -> choose render-paid.yaml
+#
+# After the first deploy, open the service shell once and run
+#   python3 fetch_model.py
+# so the model lands on the disk and survives every later deploy.
+services:
+  - type: web
+    name: mm-phone-helper
+    runtime: python
+    plan: starter
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 --threads 4 -b 0.0.0.0:$PORT --timeout 180 wsgi:app
+    healthCheckPath: /api/ready
+    disk:
+      name: whisper-cache
+      mountPath: /opt/render/project/src/models
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: MAX_AUDIO_MB
+        value: "25"
+      - key: PRELOAD_MODEL
+        value: "1"
